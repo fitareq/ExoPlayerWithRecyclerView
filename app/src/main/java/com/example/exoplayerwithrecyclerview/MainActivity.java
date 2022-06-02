@@ -1,32 +1,27 @@
 package com.example.exoplayerwithrecyclerview;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.google.android.exoplayer2.DefaultLoadControl;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.LoadControl;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 
 public class MainActivity extends AppCompatActivity {
 
-  PlayerView playerView;
+  StyledPlayerView playerView;
   ProgressBar progressBar;
   ImageView bfFullScreen;
-  SimpleExoPlayer simpleExoPlayer;
+  ExoPlayer simpleExoPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,14 +33,27 @@ public class MainActivity extends AppCompatActivity {
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        Uri videoUrl = Uri.parse("https://www.youtube.com/watch?v=5-V0-y1iP3Q&ab_channel=ApnaCollege");
+        Uri videoUrl = Uri.parse("http://159.223.79.46:5080/WebRTCApp/play.html?name=durbar-exclusive_10");
 
-        LoadControl loadControl = new DefaultLoadControl();
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelector trackSelector = new DefaultTrackSelector(
-                new AdaptiveTrackSelection.Factory()
-        );
 
-        simpleExoPlayer =
+
+        simpleExoPlayer = new ExoPlayer.Builder(this).setMediaSourceFactory(new DefaultMediaSourceFactory(this).setLiveTargetOffsetMs(5000)).build();
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(videoUrl)
+                        .setLiveConfiguration(
+                                new MediaItem.LiveConfiguration.Builder()
+                                        .setMaxPlaybackSpeed(1.02f)
+                                        .build()
+                        ).build();
+
+        MediaSource mediaSource = new HlsMediaSource.Factory(new DefaultHttpDataSource.Factory()).createMediaSource(mediaItem);
+        simpleExoPlayer.setMediaSource(mediaSource);
+        playerView.setPlayer(simpleExoPlayer);
+
+
+        simpleExoPlayer.prepare();
+        //simpleExoPlayer.setPlayWhenReady(true);
+        //simpleExoPlayer.play();
     }
+
 }
