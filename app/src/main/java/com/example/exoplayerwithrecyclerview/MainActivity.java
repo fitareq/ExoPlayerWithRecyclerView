@@ -55,5 +55,4 @@ public class MainActivity extends AppCompatActivity {
         //simpleExoPlayer.setPlayWhenReady(true);
         //simpleExoPlayer.play();
     }
-
 }
